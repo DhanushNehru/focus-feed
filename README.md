@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <h1 align="center">FocusFeed</h1>
+  <p align="center">
+    <strong>A smart, self-hosted feed aggregator that filters out the noise.</strong>
+  </p>
+  <p align="center">
+    <a href="https://github.com/sponsors/DhanushNehru">💖 Sponsor this project</a>
+  </p>
+</div>
 
-## Getting Started
+---
 
-First, run the development server:
+## 🎯 The Problem
+You subscribe to high-quality blogs, but they publish too much content. You only want to read the 5% of articles that actually matter to you.
 
+## ✨ The Solution: FocusFeed
+FocusFeed is a distraction-free, intelligent RSS/Atom feed reader. Instead of dumping every article into an endless scroll, FocusFeed allows you to set up **strict filtering conditions**.
+
+If an article doesn't match your exact keywords or triggers an exclusion rule, it never reaches your dashboard. **Signal over noise.**
+
+## 🚀 Features
+- 🛡️ **Smart Curation Engine:** Set MUST INCLUDE or MUST EXCLUDE keyword rules.
+- 🎨 **Premium Aesthetics:** A sleek, glassmorphic dark mode UI designed for distraction-free reading.
+- ⚡ **Local & Fast:** Built on Next.js and SQLite. It's lightning fast and runs entirely locally.
+- 🐳 **Docker Ready:** Deploy anywhere with a single `docker-compose up`.
+
+## 🛠️ Quick Start
+
+### Option 1: Docker (Recommended)
 ```bash
+git clone https://github.com/DhanushNehru/focusfeed.git
+cd focusfeed
+docker-compose up -d
+```
+Visit `http://localhost:3000`
+
+### Option 2: Local Node.js
+```bash
+git clone https://github.com/DhanushNehru/focusfeed.git
+cd focusfeed
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 💖 Support the Creator
+If FocusFeed saves you time and helps you read better, please consider sponsoring the development!
+👉 **[Sponsor DhanushNehru on GitHub](https://github.com/sponsors/DhanushNehru)**
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 🤝 Contributing
+We love community contributions! Please check out [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get started.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+MIT License. See [LICENSE](./LICENSE) for details.
