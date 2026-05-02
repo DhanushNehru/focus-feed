@@ -1,10 +1,6 @@
 import Parser from 'rss-parser';
 
 const parser = new Parser({
-  headers: {
-    'User-Agent': 'Mozilla/5.0 (compatible; FocusFeed/1.0; +https://github.com/DhanushNehru/focus-feed)',
-    'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
-  },
   customFields: {
     item: ['description', 'content:encoded', 'content', 'pubDate'],
   }
@@ -12,7 +8,17 @@ const parser = new Parser({
 
 export async function fetchAndParseFeed(url) {
   try {
-    const feed = await parser.parseURL(url);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; FocusFeed/1.0; +https://github.com/DhanushNehru/focus-feed)',
+        'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch feed: HTTP ${response.status}`);
+    }
+    const xml = await response.text();
+    const feed = await parser.parseString(xml);
     return feed;
   } catch (error) {
     console.error(`Error parsing feed ${url}:`, error);
