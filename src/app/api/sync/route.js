@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { ensureDb } from '@/lib/db';
 import { fetchAndParseFeed, extractContent } from '@/lib/feedParser';
 import { evaluateArticle } from '@/lib/ruleEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST() {
   try {
+    await ensureDb();
     const feeds = await sql`SELECT * FROM feeds`;
     const rules = await sql`SELECT * FROM rules`;
     

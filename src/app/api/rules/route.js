@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { ensureDb } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
   try {
+    await ensureDb();
     const rules = await sql`SELECT * FROM rules ORDER BY created_at DESC`;
     return NextResponse.json(rules);
   } catch (error) {
@@ -13,6 +14,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    await ensureDb();
     const { type, value } = await request.json();
     if (!['include', 'exclude'].includes(type) || !value) {
       return NextResponse.json({ error: 'Invalid rule type or value' }, { status: 400 });
@@ -32,6 +34,7 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
+    await ensureDb();
     const { id } = await request.json();
     await sql`DELETE FROM rules WHERE id = ${id}`;
     return NextResponse.json({ success: true });

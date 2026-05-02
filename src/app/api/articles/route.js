@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { ensureDb } from '@/lib/db';
 
 export async function GET() {
   try {
+    await ensureDb();
     const articles = await sql`
       SELECT a.*, f.name as feed_name 
       FROM articles a 

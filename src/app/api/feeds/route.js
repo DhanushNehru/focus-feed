@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import sql from '@/lib/db';
+import sql, { ensureDb } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchAndParseFeed } from '@/lib/feedParser';
 
 export async function GET() {
   try {
+    await ensureDb();
     const feeds = await sql`SELECT * FROM feeds ORDER BY created_at DESC`;
     return NextResponse.json(feeds);
   } catch (error) {
@@ -14,6 +15,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    await ensureDb();
     const { url } = await request.json();
     
     // Validate feed
@@ -39,6 +41,7 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
+    await ensureDb();
     const { id } = await request.json();
     // Delete articles first due to foreign key
     await sql`DELETE FROM articles WHERE feed_id = ${id}`;
