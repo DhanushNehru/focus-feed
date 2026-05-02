@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  focusfeed:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./focusfeed.db:/app/focusfeed.db
+    environment:
+      - NODE_ENV=production
+    restart: always
