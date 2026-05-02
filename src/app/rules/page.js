@@ -14,6 +14,7 @@ export default function RulesPage() {
       setRules(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
+      setRules([]);
     }
   };
 

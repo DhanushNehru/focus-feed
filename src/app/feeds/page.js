@@ -13,6 +13,7 @@ export default function FeedsPage() {
       setFeeds(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
+      setFeeds([]);
     }
   };
 
