@@ -1,6 +1,10 @@
 import Parser from 'rss-parser';
 
 const parser = new Parser({
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (compatible; FocusFeed/1.0; +https://github.com/DhanushNehru/focus-feed)',
+    'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml, */*',
+  },
   customFields: {
     item: ['description', 'content:encoded', 'content', 'pubDate'],
   }
