@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import sql from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function GET() {
-  const rules = db.prepare('SELECT * FROM rules ORDER BY created_at DESC').all();
-  return NextResponse.json(rules);
+  try {
+    const rules = await sql`SELECT * FROM rules ORDER BY created_at DESC`;
+    return NextResponse.json(rules);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch rules' }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
@@ -15,7 +19,10 @@ export async function POST(request) {
     }
     
     const id = uuidv4();
-    db.prepare('INSERT INTO rules (id, type, value) VALUES (?, ?, ?)').run(id, type, value);
+    await sql`
+      INSERT INTO rules (id, type, value) 
+      VALUES (${id}, ${type}, ${value})
+    `;
     
     return NextResponse.json({ id, type, value }, { status: 201 });
   } catch (error) {
@@ -26,7 +33,7 @@ export async function POST(request) {
 export async function DELETE(request) {
   try {
     const { id } = await request.json();
-    db.prepare('DELETE FROM rules WHERE id = ?').run(id);
+    await sql`DELETE FROM rules WHERE id = ${id}`;
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete rule' }, { status: 500 });

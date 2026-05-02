@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import sql from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchAndParseFeed } from '@/lib/feedParser';
 
 export async function GET() {
-  const feeds = db.prepare('SELECT * FROM feeds ORDER BY created_at DESC').all();
-  return NextResponse.json(feeds);
+  try {
+    const feeds = await sql`SELECT * FROM feeds ORDER BY created_at DESC`;
+    return NextResponse.json(feeds);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch feeds' }, { status: 500 });
+  }
 }
 
 export async function POST(request) {
@@ -18,12 +22,15 @@ export async function POST(request) {
 
     const id = uuidv4();
     
-    db.prepare('INSERT INTO feeds (id, url, name) VALUES (?, ?, ?)').run(id, url, title);
+    await sql`
+      INSERT INTO feeds (id, url, name) 
+      VALUES (${id}, ${url}, ${title})
+    `;
     
     return NextResponse.json({ id, url, name: title }, { status: 201 });
   } catch (error) {
     console.error('Failed to add feed:', error);
-    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+    if (error.code === '23505') { // Postgres unique constraint violation
         return NextResponse.json({ error: 'Feed already exists' }, { status: 400 });
     }
     return NextResponse.json({ error: 'Failed to add or parse feed' }, { status: 500 });
@@ -34,8 +41,8 @@ export async function DELETE(request) {
   try {
     const { id } = await request.json();
     // Delete articles first due to foreign key
-    db.prepare('DELETE FROM articles WHERE feed_id = ?').run(id);
-    db.prepare('DELETE FROM feeds WHERE id = ?').run(id);
+    await sql`DELETE FROM articles WHERE feed_id = ${id}`;
+    await sql`DELETE FROM feeds WHERE id = ${id}`;
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete feed' }, { status: 500 });
