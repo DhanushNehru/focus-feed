@@ -7,9 +7,13 @@ export default function FeedsPage() {
   const [loading, setLoading] = useState(false);
 
   const fetchFeeds = async () => {
-    const res = await fetch('/api/feeds');
-    const data = await res.json();
-    setFeeds(data || []);
+    try {
+      const res = await fetch('/api/feeds');
+      const data = await res.json();
+      setFeeds(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {

@@ -8,9 +8,13 @@ export default function RulesPage() {
   const [loading, setLoading] = useState(false);
 
   const fetchRules = async () => {
-    const res = await fetch('/api/rules');
-    const data = await res.json();
-    setRules(data || []);
+    try {
+      const res = await fetch('/api/rules');
+      const data = await res.json();
+      setRules(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {

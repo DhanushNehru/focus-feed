@@ -10,9 +10,10 @@ export default function Dashboard() {
     try {
       const res = await fetch('/api/articles');
       const data = await res.json();
-      setArticles(data || []);
+      setArticles(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error(e);
+      setArticles([]);
     } finally {
       setLoading(false);
     }
