@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db';
+import sql from '@/lib/db';
 import { fetchAndParseFeed, extractContent } from '@/lib/feedParser';
 import { evaluateArticle } from '@/lib/ruleEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function POST() {
   try {
-    const feeds = db.prepare('SELECT * FROM feeds').all();
-    const rules = db.prepare('SELECT * FROM rules').all();
+    const feeds = await sql`SELECT * FROM feeds`;
+    const rules = await sql`SELECT * FROM rules`;
     
     let addedCount = 0;
 
@@ -19,20 +19,20 @@ export async function POST() {
           const title = item.title || 'Untitled';
           const link = item.link;
           const content = extractContent(item);
-          const pubDate = item.pubDate || new Date().toISOString();
+          const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
           
           // Check if article already exists
-          const existing = db.prepare('SELECT id FROM articles WHERE link = ?').get(link);
-          if (existing) continue;
+          const existing = await sql`SELECT id FROM articles WHERE link = ${link}`;
+          if (existing.length > 0) continue;
 
           // Evaluate against rules
           const isVisible = evaluateArticle({ title, content }, rules);
 
           const id = uuidv4();
-          db.prepare(`
+          await sql`
             INSERT INTO articles (id, feed_id, title, link, content, pub_date, is_visible)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-          `).run(id, feed.id, title, link, content, pubDate, isVisible ? 1 : 0);
+            VALUES (${id}, ${feed.id}, ${title}, ${link}, ${content}, ${pubDate}, ${isVisible})
+          `;
           
           addedCount++;
         }
