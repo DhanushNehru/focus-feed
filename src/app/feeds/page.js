@@ -1,7 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function FeedsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [feeds, setFeeds] = useState([]);
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,8 +22,12 @@ export default function FeedsPage() {
   };
 
   useEffect(() => {
-    fetchFeeds();
-  }, []);
+    if (status === 'unauthenticated') {
+      router.push('/');
+    } else if (session) {
+      fetchFeeds();
+    }
+  }, [session, status, router]);
 
   const handleAddFeed = async (e) => {
     e.preventDefault();
