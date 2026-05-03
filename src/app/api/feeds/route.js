@@ -2,11 +2,18 @@ import { NextResponse } from 'next/server';
 import sql, { ensureDb } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchAndParseFeed } from '@/lib/feedParser';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     await ensureDb();
-    const feeds = await sql`SELECT * FROM feeds ORDER BY created_at DESC`;
+    const feeds = await sql`SELECT * FROM user_feeds WHERE user_email = ${session.user.email} ORDER BY created_at DESC`;
     return NextResponse.json(feeds);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch feeds' }, { status: 500 });
@@ -15,6 +22,9 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     await ensureDb();
     const { url } = await request.json();
     
@@ -25,8 +35,8 @@ export async function POST(request) {
     const id = uuidv4();
     
     await sql`
-      INSERT INTO feeds (id, url, name) 
-      VALUES (${id}, ${url}, ${title})
+      INSERT INTO user_feeds (id, url, name, user_email) 
+      VALUES (${id}, ${url}, ${title}, ${session.user.email})
     `;
     
     return NextResponse.json({ id, url, name: title }, { status: 201 });
@@ -41,11 +51,15 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     await ensureDb();
     const { id } = await request.json();
-    // Delete articles first due to foreign key
-    await sql`DELETE FROM articles WHERE feed_id = ${id}`;
-    await sql`DELETE FROM feeds WHERE id = ${id}`;
+    
+    // Delete articles first due to foreign key, ensuring they belong to this user
+    await sql`DELETE FROM user_articles WHERE feed_id = ${id} AND user_email = ${session.user.email}`;
+    await sql`DELETE FROM user_feeds WHERE id = ${id} AND user_email = ${session.user.email}`;
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete feed' }, { status: 500 });

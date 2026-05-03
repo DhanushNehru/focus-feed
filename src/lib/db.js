@@ -11,33 +11,38 @@ export async function ensureDb() {
 
   try {
     await sql`
-      CREATE TABLE IF NOT EXISTS feeds (
+      CREATE TABLE IF NOT EXISTS user_feeds (
         id TEXT PRIMARY KEY,
-        url TEXT UNIQUE NOT NULL,
+        url TEXT NOT NULL,
         name TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        user_email TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(url, user_email)
       );
     `;
 
     await sql`
-      CREATE TABLE IF NOT EXISTS articles (
+      CREATE TABLE IF NOT EXISTS user_articles (
         id TEXT PRIMARY KEY,
         feed_id TEXT NOT NULL,
         title TEXT NOT NULL,
-        link TEXT UNIQUE NOT NULL,
+        link TEXT NOT NULL,
         content TEXT,
         pub_date TIMESTAMP,
         is_visible BOOLEAN DEFAULT TRUE,
+        user_email TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(feed_id) REFERENCES feeds(id)
+        UNIQUE(link, user_email),
+        FOREIGN KEY(feed_id) REFERENCES user_feeds(id) ON DELETE CASCADE
       );
     `;
 
     await sql`
-      CREATE TABLE IF NOT EXISTS rules (
+      CREATE TABLE IF NOT EXISTS user_rules (
         id TEXT PRIMARY KEY,
         type TEXT NOT NULL,
         value TEXT NOT NULL,
+        user_email TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `;
