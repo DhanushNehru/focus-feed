@@ -33,9 +33,9 @@ export async function POST(request) {
   } catch (error) {
     console.error('Failed to add feed:', error);
     if (error.code === '23505') { // Postgres unique constraint violation
-        return NextResponse.json({ error: 'Feed already exists' }, { status: 400 });
+        return NextResponse.json({ error: 'Feed already exists in your list.' }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to add or parse feed' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to add feed: ${error.message}` }, { status: 500 });
   }
 }
 
