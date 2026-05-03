@@ -13,7 +13,7 @@ export async function GET() {
     if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     await ensureDb();
-    const feeds = await sql`SELECT * FROM user_feeds WHERE user_email = ${session.user.email} ORDER BY created_at DESC`;
+    const feeds = await sql`SELECT * FROM user_feeds WHERE user_email = ${session.user.email} AND is_active = TRUE ORDER BY created_at DESC`;
     return NextResponse.json(feeds);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch feeds' }, { status: 500 });
@@ -57,9 +57,8 @@ export async function DELETE(request) {
     await ensureDb();
     const { id } = await request.json();
     
-    // Delete articles first due to foreign key, ensuring they belong to this user
-    await sql`DELETE FROM user_articles WHERE feed_id = ${id} AND user_email = ${session.user.email}`;
-    await sql`DELETE FROM user_feeds WHERE id = ${id} AND user_email = ${session.user.email}`;
+    // Soft delete the feed instead of hard deleting
+    await sql`UPDATE user_feeds SET is_active = FALSE WHERE id = ${id} AND user_email = ${session.user.email}`;
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete feed' }, { status: 500 });

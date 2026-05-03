@@ -17,7 +17,7 @@ export async function GET() {
       SELECT a.*, f.name as feed_name 
       FROM user_articles a 
       JOIN user_feeds f ON a.feed_id = f.id 
-      WHERE a.is_visible = TRUE AND a.user_email = ${session.user.email}
+      WHERE a.is_visible = TRUE AND a.user_email = ${session.user.email} AND f.is_active = TRUE
       ORDER BY a.pub_date DESC 
       LIMIT 100
     `;

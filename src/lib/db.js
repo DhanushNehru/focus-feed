@@ -11,15 +11,29 @@ export async function ensureDb() {
 
   try {
     await sql`
+      CREATE TABLE IF NOT EXISTS users (
+        email TEXT PRIMARY KEY,
+        name TEXT,
+        image TEXT,
+        last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    await sql`
       CREATE TABLE IF NOT EXISTS user_feeds (
         id TEXT PRIMARY KEY,
         url TEXT NOT NULL,
         name TEXT NOT NULL,
         user_email TEXT NOT NULL,
+        is_active BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(url, user_email)
       );
     `;
+
+    // Safely add is_active column if it's missing (for existing tables)
+    await sql`ALTER TABLE user_feeds ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;`;
 
     await sql`
       CREATE TABLE IF NOT EXISTS user_articles (

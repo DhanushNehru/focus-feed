@@ -26,9 +26,9 @@ export async function POST(request) {
     // Determine whose feeds to sync
     let feeds;
     if (isCron) {
-      feeds = await sql`SELECT * FROM user_feeds`;
+      feeds = await sql`SELECT * FROM user_feeds WHERE is_active = TRUE`;
     } else {
-      feeds = await sql`SELECT * FROM user_feeds WHERE user_email = ${session.user.email}`;
+      feeds = await sql`SELECT * FROM user_feeds WHERE user_email = ${session.user.email} AND is_active = TRUE`;
     }
     
     let addedCount = 0;
