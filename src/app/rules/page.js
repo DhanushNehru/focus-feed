@@ -1,7 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function RulesPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [rules, setRules] = useState([]);
   const [type, setType] = useState('include');
   const [value, setValue] = useState('');
@@ -19,8 +23,12 @@ export default function RulesPage() {
   };
 
   useEffect(() => {
-    fetchRules();
-  }, []);
+    if (status === 'unauthenticated') {
+      router.push('/');
+    } else if (session) {
+      fetchRules();
+    }
+  }, [session, status, router]);
 
   const handleAddRule = async (e) => {
     e.preventDefault();
